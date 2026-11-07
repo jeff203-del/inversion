@@ -30,11 +30,23 @@ jobs:
           mv dist/web/Dockerfile.runtime dist/web/Dockerfile
           cp api/Dockerfile api/requirements.txt api/main.py api/sms.py dist/api/
           cp deploy/docker-compose.yml dist/docker-compose.yml
-      - name: Deploy to RumptyCloud
-        uses: rumptycloud/deploy-action@v1
-        with:
-          token: ${{ secrets.RUMPTY_TOKEN }}
-          vm-id: ${{ secrets.RUMPTY_VM_ID }}
-          source: ./dist
-          target: /opt/defend-it
-          after-deploy: sudo docker compose --project-directory /opt/defend-it -f /opt/defend-it/docker-compose.yml up -d --build && sudo nginx -t && sudo systemctl reload nginx
+          tar -czf defend-it.tar.gz -C dist .
+      - name: Install Rumpty CLI
+        run: |
+          curl -fsSL https://get.rumptycloud.com | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Deploy to Rumpty VM
+        env:
+          RUMPTY_API_KEY: ${{ secrets.RUMPTY_TOKEN }}
+          VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$VM_SSH_KEY" > /tmp/rumpty_deploy_key
+          chmod 600 /tmp/rumpty_deploy_key
+          rumpty copy ./defend-it.tar.gz inverse:/tmp/defend-it.tar.gz --ws qo-01a1b65d --identity /tmp/rumpty_deploy_key
+          rumpty exec inverse --ws qo-01a1b65d --identity /tmp/rumpty_deploy_key -- sudo systemctl disable --now rumpty-welcome.service || true
+          rumpty exec inverse --ws qo-01a1b65d --identity /tmp/rumpty_deploy_key -- sudo mkdir -p /opt/defend-it
+          rumpty exec inverse --ws qo-01a1b65d --identity /tmp/rumpty_deploy_key -- sudo tar -xzf /tmp/defend-it.tar.gz -C /opt/defend-it
+          rumpty exec inverse --ws qo-01a1b65d --identity /tmp/rumpty_deploy_key -- sudo docker compose --project-directory /opt/defend-it -f /opt/defend-it/docker-compose.yml up -d --build
+          rm -f /tmp/rumpty_deploy_key

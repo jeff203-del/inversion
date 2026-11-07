@@ -2,16 +2,15 @@
 
 ## RumptyCloud deployment
 
-The GitHub workflow builds the Next.js static export, packages it with the FastAPI source, and uploads both services to one RumptyCloud VM. The VM needs Docker Engine and the Docker Compose plugin. The deployment starts the web and API containers on an internal Compose network; the web container proxies `/api/*` requests to FastAPI.
+The GitHub workflow builds the Next.js static export, packages it with the FastAPI source, and uploads both services to one RumptyCloud VM using the Rumpty CLI. The VM needs Docker Engine and the Docker Compose plugin. The deployment starts the web and API containers on an internal Compose network; the web container proxies `/api/*` requests to FastAPI and serves the app on Rumpty's default public app port, 8080.
 
-1. Create a RumptyCloud Linux VM. Install Docker Engine and the Compose plugin if they are not part of its image.
-2. Configure the RumptyCloud nginx HTTPS site to proxy to `http://127.0.0.1:8080`. The location block is in `deploy/rumpty-nginx-location.conf`; merge it into the HTTPS server block generated for your real hostname.
-3. In the VM deployment's **Deploy** tab, get `RUMPTY_TOKEN` and `RUMPTY_VM_ID`.
-4. Push the project to a GitHub repository's `main` branch. Add those two values under **Settings → Secrets and variables → Actions**. Do not put them in the repo or chat.
-5. Run **Actions → Deploy to RumptyCloud → Deploy to RumptyCloud → Run workflow**. The workflow uploads the web and API bundle to `/opt/defend-it`, runs `docker compose up -d --build`, and reloads nginx.
-6. Open the RumptyCloud app URL. Check `<your-app-url>/api/health` for the API response and try **Campaigns → Invite candidate**. With the default `SMS_MODE=console`, the API returns a message preview without sending a real SMS.
+1. Create a RumptyCloud Linux VM and install Docker Engine with the Compose plugin.
+2. Stop the default `rumpty-welcome.service` so the app container can use port 8080.
+3. Add GitHub Actions secrets `RUMPTY_TOKEN` (a full, unmasked Rumpty personal API token) and `VM_SSH_KEY` (the private key whose public half is authorized on the VM). Never commit these values. The workflow currently targets VM `inverse` in workspace `qo-01a1b65d`; update those non-secret values in the workflow if you use another VM/workspace.
+4. Run **Actions → Deploy to RumptyCloud → Run workflow**. The workflow builds the frontend, packages the API, uploads a tarball to the VM with the Rumpty CLI, then runs `docker compose up -d --build`.
+5. Open the RumptyCloud VM app URL. Check `<your-app-url>/api/health` for the API response and try **Campaigns → Invite candidate**. With the default `SMS_MODE=console`, the API returns a message preview without sending a real SMS.
 
-The provider's Deploy tab must use a VM that supports Docker. The action copies build artifacts; this workflow uses its `after-deploy` command to start the two containers. If the VM image lacks Docker, install it before the first workflow run.
+If the VM image lacks Docker, install it before the first workflow run. The build happens on GitHub Actions; the VM only runs the two containers.
 
 ## ThriveVas SMS API
 
