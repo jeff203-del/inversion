@@ -1,0 +1,19 @@
+services:
+  web:
+    build: ./web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - api
+  api:
+    build: ./api
+    restart: unless-stopped
+    environment:
+      SMS_MODE: ${SMS_MODE:-console}
+      THRIVEVAS_API_KEY: ${THRIVEVAS_API_KEY:-}
+      THRIVEVAS_SENDER_ID: ${THRIVEVAS_SENDER_ID:-ThriveVas}
+      THRIVEVAS_API_BASE_URL: ${THRIVEVAS_API_BASE_URL:-https://sms.thrivevas.com/v1}
+      THRIVEVAS_CALLBACK_URL: ${THRIVEVAS_CALLBACK_URL:-}
+      SMS_ALLOWED_RECIPIENTS: ${SMS_ALLOWED_RECIPIENTS:-}
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-*}"

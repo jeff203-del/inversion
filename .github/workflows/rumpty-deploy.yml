@@ -1,0 +1,40 @@
+name: Deploy to RumptyCloud
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "api/**"
+      - "deploy/**"
+      - ".github/workflows/rumpty-deploy.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build Next.js static export
+        working-directory: web
+        run: npm ci && npm run build
+      - name: Assemble web and API deployment bundle
+        shell: bash
+        run: |
+          mkdir -p dist/web/out dist/api
+          cp -R web/out/. dist/web/out/
+          cp web/nginx.conf web/Dockerfile.runtime dist/web/
+          mv dist/web/Dockerfile.runtime dist/web/Dockerfile
+          cp api/Dockerfile api/requirements.txt api/main.py api/sms.py dist/api/
+          cp deploy/docker-compose.yml dist/docker-compose.yml
+      - name: Deploy to RumptyCloud
+        uses: rumptycloud/deploy-action@v1
+        with:
+          token: ${{ secrets.RUMPTY_TOKEN }}
+          vm-id: ${{ secrets.RUMPTY_VM_ID }}
+          source: ./dist
+          target: /opt/defend-it
+          after-deploy: sudo docker compose --project-directory /opt/defend-it -f /opt/defend-it/docker-compose.yml up -d --build && sudo nginx -t && sudo systemctl reload nginx

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0e1014" />
+  <meta name="description" content="Defend It checks whether developers can explain, debug and extend the code they submit." />
+  <title>Defend It — prove you own the work</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="static" aria-hidden="true"></canvas>
+  <div class="app-shell">
+    <aside class="rail">
+      <a class="brand" href="#home" aria-label="Defend It home"><span class="brand-mark">D<span>.</span></span><span>defend<span class="muted">it</span></span></a>
+      <div class="workspace-label">WORKSPACE <span>DEMO</span></div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="home"><span class="nav-icon">⌂</span>Overview</button>
+        <button class="nav-item" data-view="campaigns"><span class="nav-icon">▤</span>Campaigns <i>2</i></button>
+        <button class="nav-item" data-view="leaderboard"><span class="nav-icon">▥</span>Leaderboard</button>
+        <button class="nav-item" data-view="evidence"><span class="nav-icon">⌕</span>Evidence board</button>
+        <button class="nav-item" data-view="validation"><span class="nav-icon">⌁</span>Validation</button>
+      </nav>
+      <div class="rail-bottom"><div class="avatar">JM</div><div><b>Jeff Mutembei</b><small>Recruiter workspace</small></div><span class="dots">···</span></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div class="crumb"><span class="live-dot"></span> ZINDUA SCHOOL <span class="slash">/</span> DEMO WORKSPACE</div><div class="top-actions"><span class="api-pill" id="api-status" title="Checking API connection">API · checking</span><span class="top-date">NOV 07, 2026</span><button class="button tiny" onclick="startDefence()">▶ &nbsp;Try candidate demo</button><button class="icon-btn" aria-label="Notifications">♧<em></em></button><button class="avatar small">JM</button></div></header>
+      <section id="view-home" class="view active"></section>
+      <section id="view-campaigns" class="view"></section>
+      <section id="view-leaderboard" class="view"></section>
+      <section id="view-evidence" class="view"></section>
+      <section id="view-validation" class="view"></section>
+      <section id="view-defence" class="view"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

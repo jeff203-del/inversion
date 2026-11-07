@@ -1,0 +1,22 @@
+services:
+  web:
+    build: ./web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      SMS_MODE: ${SMS_MODE:-console}
+      THRIVEVAS_API_KEY: ${THRIVEVAS_API_KEY:-}
+      THRIVEVAS_SENDER_ID: ${THRIVEVAS_SENDER_ID:-ThriveVas}
+      THRIVEVAS_API_BASE_URL: ${THRIVEVAS_API_BASE_URL:-https://sms.thrivevas.com/v1}
+      THRIVEVAS_CALLBACK_URL: ${THRIVEVAS_CALLBACK_URL:-}
+      SMS_ALLOWED_RECIPIENTS: ${SMS_ALLOWED_RECIPIENTS:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///./defendit.db}
+      SANDBOX_ENABLED: ${SANDBOX_ENABLED:-false}
